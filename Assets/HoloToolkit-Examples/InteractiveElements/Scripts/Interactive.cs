@@ -2,17 +2,18 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using UnityEngine;
-using System.Collections;
 using UnityEngine.Events;
-using HoloToolkit.Unity;
-using UnityEngine.Windows.Speech;
 using System.Collections.Generic;
 using HoloToolkit.Unity.InputModule;
+
+#if UNITY_WSA || UNITY_STANDALONE_WIN
+using UnityEngine.Windows.Speech;
+#endif
 
 namespace HoloToolkit.Examples.InteractiveElements
 {
     /// <summary>
-    /// Interactive exposes basic button type events to the Unity Editor and recieves messages from the GestureManager and GazeManager.
+    /// Interactive exposes basic button type events to the Unity Editor and receives messages from the GestureManager and GazeManager.
     /// 
     /// Beyond the basic button functionality, Interactive also maintains the notion of selection and enabled, which allow for more robust UI features.
     /// InteractiveEffects are behaviors that listen for updates from Interactive, which allows for visual feedback to be customized and placed on
@@ -29,7 +30,7 @@ namespace HoloToolkit.Examples.InteractiveElements
         public bool IsEnabled = true;
 
         /// <summary>
-        /// Does the gameObect currently have focus?
+        /// Does the GameObject currently have focus?
         /// </summary>
         public bool HasGaze { get; protected set; }
 
@@ -49,7 +50,7 @@ namespace HoloToolkit.Examples.InteractiveElements
         public float HoldTime = 0.5f;
 
         /// <summary>
-        /// Configure the amount of time a rolloff update should occure. When building more advanced UI,
+        /// Configure the amount of time a roll off update should incur. When building more advanced UI,
         /// we may need to evaluate what the next gazed item is before updating.
         /// </summary>
         public float RollOffTime = 0.02f;
@@ -87,7 +88,9 @@ namespace HoloToolkit.Examples.InteractiveElements
         protected bool mCheckRollOff = false;
         protected bool mCheckHold = false;
 
+#if UNITY_WSA || UNITY_STANDALONE_WIN
         protected KeywordRecognizer mKeywordRecognizer;
+#endif
         protected Dictionary<string, int> mKeywordDictionary;
         protected string[] mKeywordArray;
 
@@ -131,12 +134,14 @@ namespace HoloToolkit.Examples.InteractiveElements
                     }
                 }
 
+#if UNITY_WSA || UNITY_STANDALONE_WIN
                 if (!KeywordRequiresGaze)
                 {
                     mKeywordRecognizer = new KeywordRecognizer(mKeywordArray);
                     mKeywordRecognizer.OnPhraseRecognized += KeywordRecognizer_OnPhraseRecognized;
                     mKeywordRecognizer.Start();
                 }
+#endif
 
             }
 
@@ -201,6 +206,7 @@ namespace HoloToolkit.Examples.InteractiveElements
 
         private void SetKeywordListener(bool listen)
         {
+#if UNITY_WSA || UNITY_STANDALONE_WIN
             if (listen)
             {
                 if (KeywordRequiresGaze && mKeywordArray != null)
@@ -233,6 +239,7 @@ namespace HoloToolkit.Examples.InteractiveElements
                     }
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -367,6 +374,7 @@ namespace HoloToolkit.Examples.InteractiveElements
             }
         }
 
+#if UNITY_WSA || UNITY_STANDALONE_WIN
         protected virtual void KeywordRecognizer_OnPhraseRecognized(PhraseRecognizedEventArgs args)
         {
 
@@ -379,9 +387,10 @@ namespace HoloToolkit.Examples.InteractiveElements
                 }
             }
         }
+#endif
 
         /// <summary>
-        /// Check if any state changes have occured, from alternate input sources
+        /// Check if any state changes have occurred, from alternate input sources
         /// </summary>
         protected void CompareStates()
         {
@@ -501,15 +510,16 @@ namespace HoloToolkit.Examples.InteractiveElements
 
         protected virtual void OnEnable()
         {
+#if UNITY_WSA || UNITY_STANDALONE_WIN
             if (mKeywordRecognizer != null && !KeywordRequiresGaze)
             {
                 SetKeywordListener(true);
             }
+#endif
         }
 
         protected virtual void OnDisable()
         {
-            //SetKeywordListener(false);
             OnFocusExit();
         }
     }
